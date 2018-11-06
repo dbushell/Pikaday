@@ -212,6 +212,9 @@
         // first day of week (0: Sunday, 1: Monday etc)
         firstDay: 0,
 
+        // render today button
+        todayButton: false,
+
         // the default flag for moment's strict date parsing
         formatStrict: false,
 
@@ -269,6 +272,7 @@
         i18n: {
             previousMonth : 'Previous Month',
             nextMonth     : 'Next Month',
+            today         : 'Today',
             months        : ['January','February','March','April','May','June','July','August','September','October','November','December'],
             weekdays      : ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
             weekdaysShort : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
@@ -406,6 +410,12 @@
         }
         return '<thead><tr>' + (opts.isRTL ? arr.reverse() : arr).join('') + '</tr></thead>';
     },
+    renderFooter = function(opts)
+    {
+        var i, arr = [];
+        arr.push('<td colspan="'+(opts.showWeekNumber?'8':'7')+'"><button class="pika-goto-today">'+opts.i18n.today+'</button></td>');
+        return '<tfoot>' + (opts.isRTL ? arr.reverse() : arr).join('') + '</tfoot>';
+    },
 
     renderTitle = function(instance, c, year, month, refYear, randId)
     {
@@ -469,7 +479,7 @@
 
     renderTable = function(opts, data, randId)
     {
-        return '<table cellpadding="0" cellspacing="0" class="pika-table" role="grid" aria-labelledby="' + randId + '">' + renderHead(opts) + renderBody(data) + '</table>';
+        return '<table cellpadding="0" cellspacing="0" class="pika-table" role="grid" aria-labelledby="' + randId + '">' + renderHead(opts) + renderBody(data) + (opts.todayButton ? renderFooter(opts) :'') + '</table>';
     },
 
 
@@ -509,6 +519,19 @@
                 }
                 else if (hasClass(target, 'pika-next')) {
                     self.nextMonth();
+                }
+                else if (hasClass(target, 'pika-goto-today')) {
+                    var today = new Date();
+                    self.gotoDate(today);
+                    self.setDate(today);
+                    if (opts.bound) {
+                        sto(function() {
+                            self.hide();
+                            if (opts.field) {
+                                opts.field.blur();
+                            }
+                        }, 100);
+                    }
                 }
             }
             if (!hasClass(target, 'pika-select')) {
