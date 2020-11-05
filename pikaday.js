@@ -594,9 +594,6 @@
             if (isDate(date)) {
               self.setDate(date);
             }
-            if (!self._v) {
-                self.show();
-            }
         };
 
         self._onInputFocus = function()
