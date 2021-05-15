@@ -284,11 +284,18 @@
         // events array
         events: [],
 
+        // disabled days array
+        disabledDays: [],
+
+        // enabled days array
+        enabledDays: [],
+
         // callback function
         onSelect: null,
         onOpen: null,
         onClose: null,
         onDraw: null,
+        onPaginate: null,
 
         // Enable keyboard input
         keyboardInput: true
@@ -734,6 +741,8 @@
             opts.disableWeekends = !!opts.disableWeekends;
 
             opts.disableDayFn = (typeof opts.disableDayFn) === 'function' ? opts.disableDayFn : null;
+            
+            opts.onPaginate = (typeof opts.onPaginate) === 'function' ? opts.onPaginate : null;
 
             var nom = parseInt(opts.numberOfMonths, 10) || 1;
             opts.numberOfMonths = nom > 4 ? 4 : nom;
@@ -945,12 +954,20 @@
         {
             this.calendars[0].month++;
             this.adjustCalendars();
+            
+            if (typeof this._o.onPaginate === 'function') {
+                this._o.onPaginate('next', this.calendars[0].month, this.calendars[0].year);
+            }            
         },
 
         prevMonth: function()
         {
             this.calendars[0].month--;
             this.adjustCalendars();
+            
+            if (typeof this._o.onPaginate === 'function') {
+                this._o.onPaginate('prev', this.calendars[0].month, this.calendars[0].year);
+            }            
         },
 
         /**
@@ -1118,7 +1135,7 @@
                 top = top - height - field.offsetHeight;
                 bottomAligned = false;
             }
-            
+
             if (left < 0) {
                 left = 0;
             }
@@ -1182,7 +1199,9 @@
                     isDisabled = (opts.minDate && day < opts.minDate) ||
                                  (opts.maxDate && day > opts.maxDate) ||
                                  (opts.disableWeekends && isWeekend(day)) ||
-                                 (opts.disableDayFn && opts.disableDayFn(day));
+                                 (opts.disableDayFn && opts.disableDayFn(day) ||
+                                 (opts.disabledDays.indexOf(day.toDateString()) !== -1 ? true : false) ||
+                                 (opts.enabledDays.length > 0 && (opts.enabledDays.indexOf(day.toDateString()) !== -1 ? false : true)));
 
                 if (isEmpty) {
                     if (i < before) {
